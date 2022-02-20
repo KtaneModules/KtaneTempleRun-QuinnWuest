@@ -19,8 +19,8 @@ public class TempleRunScript : MonoBehaviour
     private static int _moduleIdCounter = 1;
 
     private static readonly string[] _responses = new string[] { "SWING ON", "JUMP OVER", "CLIMB", "DUCK UNDER", "STOMP ON", "DODGE", "CHOP", "RUN FROM", "SWIM THROUGH", "GRAB", "LEAP OVER", "BLOW ON", "BOO", "TRAP", "QUACK AT", "SWAY AROUND", "TREAD ON", "CRUSH", "HISS AT", "AHH AT", "SAY FRUIT AT", "UNDERMINE", "PASS THROUGH", "GO MMM AT", "OWL?", "BIG", "CONSTRUCT", "PAY", "SUBSCRIBE TO", "SWAP WITH", "CRSUH", "SPONGE", "HUG", "SUPER", "CRSHU", "RCSHU", "HSURC", "JUJU ON", "VQCPEDHCU", "WAH", "QUOTE", "COPY", "COPE WITH", "BAN", "OWN", "NUKE" };
-    private static readonly string[] _calls = new string[] { "WINE", "ARROWS", "SPEARS", "ZOMBIES", "BOLDER", "STREAM", "TPIRWIRE", "GHAST", "SPIKE", "SNAKE", "SCORPIONS", "SPIRITS", "PEARS", "HOLE", "PYLON", "SEAN", "SHAWN", "THOMAS", "THAMES", "NIORPOCS", "BEET", "KPWRQANTC", "ISCOOL", "PASTA", "GRUNKIE", "LIBERAL", "AUSTRIA", "GOOSE", "HOOP", "LUIGI", "PAIR", "CIDER", "BEETLE", "FUNGUS", "POLE", "REPUBLICANS", "VAMPIRE", "ROPE", "PEWDIEPIE", "CAKE", "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
-    private const int _constCount = 4;
+    private static readonly string[] _calls = new string[] { "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD", "SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
+    private static readonly string[] _fakeCalls = new string[] { "WINE", "ARROWS", "SPEARS", "ZOMBIES", "BOLDER", "STREAM", "TPIRWIRE", "GHAST", "SPIKE", "SNAKE", "SCORPIONS", "SPIRITS", "PEARS", "HOLE", "PYLON", "SEAN", "SHAWN", "THOMAS", "THAMES", "NIORPOCS", "BEET", "KPWRQANTC", "ISCOOL", "PASTA", "GRUNKIE", "LIBERAL", "AUSTRIA", "GOOSE", "HOOP", "LUIGI", "PAIR", "CIDER", "BEETLE", "FUNGUS", "POLE", "REPUBLICANS", "VAMPIRE", "ROPE", "PEWDIEPIE", "CAKE", "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD", "SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
     private List<string> _chosenResponses = new List<string>();
     private List<string> _chosenCalls = new List<string>();
 
@@ -32,6 +32,9 @@ public class TempleRunScript : MonoBehaviour
     private string _expectedInput = "";
     private bool _canActivate;
     private int _deactivCount;
+    private bool _isStrike;
+    private bool _timerExpired;
+    private bool _letTimerExpire;
 
     private void Start()
     {
@@ -39,7 +42,7 @@ public class TempleRunScript : MonoBehaviour
         _chosenResponses = _responses.Shuffle().Take(4).ToList();
         _chosenCalls = _calls.Shuffle().Take(4).ToList();
         for (int i = 0; i < 4; i++)
-            Debug.LogFormat("[Temple Run #{0}] Initial response/call: YOU MUST [{1}] THE [{2}].", _moduleId, _chosenResponses[i], _chosenCalls[i]);
+            Debug.LogFormat("[The Temple Run #{0}] Initial response/call: YOU MUST [{1}] THE [{2}].", _moduleId, _chosenResponses[i], _chosenCalls[i]);
         var ModSelectable = GetComponent<KMSelectable>();
         ModSelectable.OnFocus += delegate () { _isSelected = true; };
         ModSelectable.OnDefocus += delegate () { _isSelected = false; };
@@ -54,6 +57,7 @@ public class TempleRunScript : MonoBehaviour
     {
         if (!_canActivate)
         {
+            Debug.LogFormat("[The Temple Run #{0}] Activation bypassed to give time for reads.", _moduleId);
             Deactivate();
             return;
         }
@@ -61,27 +65,31 @@ public class TempleRunScript : MonoBehaviour
             StopCoroutine(_initialCycle);
         _currentInput = "";
         _canType = true;
+        _timerExpired = false;
+        _isStrike = false;
         TopText.text = "YOU MUST []";
-        if (Rnd.Range(0, 5) < 4 || _chosenResponses.Count == _responses.Length || _chosenCalls.Count == _calls.Length)
+        if (Rnd.Range(0, 5) < 4)
         {
-            var ix = Rnd.Range(0, _constCount);
+            var ix = Rnd.Range(0, _chosenCalls.Count);
             var chosen = _chosenCalls[ix];
             BottomText.text = "THE [" + chosen + "]";
             _expectedInput = _chosenResponses[ix];
-            Debug.LogFormat("[Temple Run #{0}] Activated with prompt: YOU MUST [RESPONSE] THE [{1}].", _moduleId, chosen);
-            Debug.LogFormat("[Temple Run #{0}] This call was shown at the start! Expecting response: [{1}]", _moduleId, _expectedInput);
+            _letTimerExpire = false;
+            Debug.LogFormat("[The Temple Run #{0}] Activated with prompt: YOU MUST [RESPONSE] THE [{1}].", _moduleId, chosen);
+            Debug.LogFormat("[The Temple Run #{0}] This call was shown at the start! Expecting response: [{1}]", _moduleId, _expectedInput);
         }
         else
         {
             newRand:
-            var ix = Rnd.Range(0, _responses.Length);
-            var chosen = _calls[ix];
-            if (_chosenResponses.Contains(chosen))
+            var ix = Rnd.Range(0, _fakeCalls.Length);
+            var chosen = _fakeCalls[ix];
+            if (_chosenCalls.Contains(chosen))
                 goto newRand;
             BottomText.text = "THE [" + chosen + "]";
             _expectedInput = "";
-            Debug.LogFormat("[Temple Run #{0}] Activated with prompt: YOU MUST [RESPONSE] THE [{1}].", _moduleId, chosen);
-            Debug.LogFormat("[Temple Run #{0}] This call was not shown at the start. Let the timer run out.", _moduleId);
+            _letTimerExpire = true;
+            Debug.LogFormat("[The Temple Run #{0}] Activated with prompt: YOU MUST [RESPONSE] THE [{1}].", _moduleId, chosen);
+            Debug.LogFormat("[The Temple Run #{0}] This call was not shown at the start. Let the timer run out.", _moduleId);
         }
     }
 
@@ -92,32 +100,38 @@ public class TempleRunScript : MonoBehaviour
             Needy.HandlePass();
             return;
         }
-        _deactivCount++;
-        TopText.text = "";
-        BottomText.text = "";
         _canType = false;
         Needy.HandlePass();
-        if (_deactivCount == 1 || _deactivCount == 3 || (_deactivCount % 4 == 2 && _deactivCount != 2))
-            GenNewCall();
+        if (!_isStrike)
+        {
+            TopText.text = "";
+            BottomText.text = "";
+            _deactivCount++;
+            if (_deactivCount == 1 || _deactivCount == 3 || (_deactivCount % 4 == 2 && _deactivCount != 2))
+                GenNewCall();
+        }
     }
 
     private void GenNewCall()
     {
-        newResp:
+        if (_responses.Length == _chosenResponses.Count || _calls.Length == _chosenCalls.Count)
+            return;
+        newCall:
         var rnd1 = _responses[Rnd.Range(0, _responses.Length)];
         var rnd2 = _calls[Rnd.Range(0, _calls.Length)];
         if (_chosenCalls.Contains(rnd2))
-            goto newResp;
+            goto newCall;
         _chosenResponses.Add(rnd1);
-        _chosenResponses.Add(rnd1);
+        _chosenCalls.Add(rnd2);
         TopText.text = "YOU MUST [" + rnd1 + "]";
         BottomText.text = "THE [" + rnd2 + "]";
-        Debug.LogFormat("[Temple Run #{0}] Added new response/call: YOU MUST [{1}] THE [{2}].", _moduleId, rnd1, rnd2);
+        Debug.LogFormat("[The Temple Run #{0}] Added new response/call: YOU MUST [{1}] THE [{2}].", _moduleId, rnd1, rnd2);
     }
 
     private void OnTimerExpre()
     {
         _currentInput = "";
+        _timerExpired = true;
         SubmitAnswer();
     }
 
@@ -129,11 +143,14 @@ public class TempleRunScript : MonoBehaviour
         {
             TopText.text = "YOU MUST [" + _chosenResponses[index] + "]";
             BottomText.text = "THE [" + _chosenCalls[index] + "]";
-            yield return new WaitForSeconds(1.5f);
-            index = (index + 1) % _constCount;
-            activIx++;
-            if (activIx > 24)
-                _canActivate = true;
+            yield return new WaitForSeconds(2f);
+            index = (index + 1) % 4;
+            if (!_canActivate)
+            {
+                activIx++;
+                if (activIx > 24)
+                    _canActivate = true;
+            }
         }
     }
 
@@ -153,6 +170,7 @@ public class TempleRunScript : MonoBehaviour
             return;
         if (key == KeyCode.Return || key == KeyCode.KeypadEnter)
         {
+            _timerExpired = false;
             SubmitAnswer();
             return;
         }
@@ -177,25 +195,51 @@ public class TempleRunScript : MonoBehaviour
         Audio.PlaySoundAtTransform("Press", transform);
     }
 
-
     private void SubmitAnswer()
     {
         _currentInput = _currentInput.ToUpperInvariant();
         _currentInput = Regex.Replace(_currentInput, @"\s+", " ");
         if (_currentInput != "" && _currentInput.Substring(_currentInput.Length - 1, 1) == " ")
             _currentInput = _currentInput.Substring(0, _currentInput.Length - 1);
-        if (_currentInput == _expectedInput)
+        if (_timerExpired)
+        {
+            if (!_letTimerExpire)
+            {
+                Debug.LogFormat("[The Temple Run #{0}] Incorrectly let the timer run out, when you should've submitted [{1}]. Strike.", _moduleId, _expectedInput);
+                _isStrike = true;
+                Needy.HandleStrike();
+                Deactivate();
+                TopText.text = "YOU MUST [" + _expectedInput + "]";
+            }
+            else
+            {
+                Audio.PlaySoundAtTransform("Correct", transform);
+                Debug.LogFormat("[The Temple Run #{0}] Correctly let the timer run out. Needy disarmed.", _moduleId);
+                Deactivate();
+            }
+        }
+        else if (_currentInput == _expectedInput)
         {
             Audio.PlaySoundAtTransform("Correct", transform);
-            Debug.LogFormat("[Temple Run #{0}] Succesfully submitted {1}. Needy disarmed.", _moduleId, _currentInput == "" ? "no input" : _currentInput);
+            Debug.LogFormat("[The Temple Run #{0}] Correctly submitted [{1}]. Needy disarmed.", _moduleId, _currentInput);
             Needy.HandlePass();
             Deactivate();
         }
-        else
+        else if (_letTimerExpire)
         {
-            Debug.LogFormat("[Temple Run #{0}] Incorrectly submitted {1}, when {2} was expected. Needy disarmed.", _moduleId, _currentInput == "" ? "no input" : _currentInput, _expectedInput == "" ? "no input" : _expectedInput);
+            Debug.LogFormat("[The Temple Run #{0}] Incorrectly submitted [{1}], when you should've let the timer run out. Strike.", _moduleId, _currentInput);
+            _isStrike = true;
             Needy.HandleStrike();
             Deactivate();
+            TopText.text = "YOU MUST []";
+        }
+        else
+        {
+            Debug.LogFormat("[The Temple Run #{0}] Incorrectly submitted [{1}], when [{2}] was expected. Needy disarmed.", _moduleId, _currentInput, _expectedInput);
+            _isStrike = true;
+            Needy.HandleStrike();
+            Deactivate();
+            TopText.text = "YOU MUST [" + _expectedInput + "]";
         }
     }
 
@@ -223,8 +267,9 @@ public class TempleRunScript : MonoBehaviour
         for (int i = 1; i < submission.Length + 1; i++)
         {
             _currentInput = submission.Substring(0, i);
-            BottomText.text = _currentInput;
-            yield return new WaitForSeconds(0.02f);
+            Audio.PlaySoundAtTransform("Press", transform);
+            TopText.text = "YOU MUST [" + _currentInput + "]";
+            yield return new WaitForSeconds(0.05f);
         }
         SubmitAnswer();
     }

@@ -887,7 +887,7 @@ MonoBehaviour:
   ResetDelayMin: 10
   ResetDelayMax: 40
   ModuleType: TempleRunNeedy
-  ModuleDisplayName: Temple Run
+  ModuleDisplayName: The Temple Run
   RequiresTimerVisibility: 0
   WarnAtFiveSeconds: 1
 --- !u!114 &114748944448976546
