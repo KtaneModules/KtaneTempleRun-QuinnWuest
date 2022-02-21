@@ -18,9 +18,9 @@ public class TempleRunScript : MonoBehaviour
     private int _moduleId;
     private static int _moduleIdCounter = 1;
 
-    private static readonly string[] _responses = new string[] { "SWING ON", "JUMP OVER", "CLIMB", "DUCK UNDER", "STOMP ON", "DODGE", "CHOP", "RUN FROM", "SWIM THROUGH", "GRAB", "LEAP OVER", "BLOW ON", "BOO", "TRAP", "QUACK AT", "SWAY AROUND", "TREAD ON", "CRUSH", "HISS AT", "AHH AT", "SAY FRUIT AT", "UNDERMINE", "PASS THROUGH", "GO MMM AT", "OWL?", "BIG", "CONSTRUCT", "PAY", "SUBSCRIBE TO", "SWAP WITH", "CRSUH", "SPONGE", "HUG", "SUPER", "CRSHU", "RCSHU", "HSURC", "JUJU ON", "VQCPEDHCU", "WAH", "QUOTE", "COPY", "COPE WITH", "BAN", "OWN", "NUKE" };
-    private static readonly string[] _calls = new string[] { "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD", "SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
-    private static readonly string[] _fakeCalls = new string[] { "WINE", "ARROWS", "SPEARS", "ZOMBIES", "BOLDER", "STREAM", "TPIRWIRE", "GHAST", "SPIKE", "SNAKE", "SCORPIONS", "SPIRITS", "PEARS", "HOLE", "PYLON", "SEAN", "SHAWN", "THOMAS", "THAMES", "NIORPOCS", "BEET", "KPWRQANTC", "ISCOOL", "PASTA", "GRUNKIE", "LIBERAL", "AUSTRIA", "GOOSE", "HOOP", "LUIGI", "PAIR", "CIDER", "BEETLE", "FUNGUS", "POLE", "REPUBLICANS", "VAMPIRE", "ROPE", "PEWDIEPIE", "CAKE", "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD", "SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
+    private static readonly string[] _responses = new string[] { "SWING ON", "JUMP OVER", "CLIMB", "DUCK UNDER", "STOMP ON", "DODGE", "CHOP", "RUN FROM", "SWIM THROUGH", "GRAB", "LEAP OVER", "BLOW ON", "BOO", "TRAP", "QUACK AT", "SWAY AROUND", "TREAD ON", "CRUSH", "HISS AT", "AHH AT", "SAY FRUIT AT", "UNDERMINE", "PASS THROUGH", "GO MMM AT", "OWL", "BIG", "CONSTRUCT", "PAY", "SUBSCRIBE TO", "SWAP WITH", "CRSUH", "SPONGE", "HUG", "SUPER", "CRSHU", "RCSHU", "HSURC", "JUJU ON", "VQCPEDHCU", "WAH", "QUOTE", "COPY", "COPE WITH", "BAN", "OWN", "NUKE" };
+    private static readonly string[] _calls = new string[] { "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
+    private static readonly string[] _fakeCalls = new string[] { "WINE", "ARROWS", "SPEARS", "ZOMBIES", "BOLDER", "STREAM", "TPIRWIRE", "GHAST", "SPIKE", "SNAKE", "SCORPIONS", "SPIRITS", "PEARS", "HOLE", "PYLON", "SEAN", "SHAWN", "THOMAS", "THAMES", "NIORPOCS", "BEET", "KPWRQANTC", "ISCOOL", "PASTA", "GRUNKIE", "LIBERAL", "AUSTRIA", "GOOSE", "HOOP", "LUIGI", "PAIR", "CIDER", "BEETLE", "FUNGUS", "POLE", "REPUBLICANS", "VAMPIRE", "ROPE", "PEWDIEPIE", "CAKE", "VINE", "PIT", "WALL", "ARROW", "SPIDER", "SPEAR", "ZOMBIE", "BOULDER", "RIVER", "LOOT", "TRIPWIRE", "FIRE", "GHOST", "MOLE", "DUCK", "CROSSBOW", "SPIKES", "SCORPION", "SNAKES", "SPIRIT", "PEAR", "VOLE", "HALL", "TOAST", "HOOT", "CHUNGUS", "PYLONS", "CHILD SUPPORT", "BRAMBLEGAMING", "SHAUN", "SCOPRION", "TECHNO", "TAHMIS", "MARIO", "SCORPOIN", "SCOPROIN", "NIOPROCS", "BEAT", "KPWRAQNTC", "WARIO", "IZKEWL", "PASTE", "RATIO", "GRUNKLE", "LIBERALS", "AUSTRALIA" };
     private List<string> _chosenResponses = new List<string>();
     private List<string> _chosenCalls = new List<string>();
 
@@ -114,15 +114,19 @@ public class TempleRunScript : MonoBehaviour
 
     private void GenNewCall()
     {
-        if (_responses.Length == _chosenResponses.Count || _calls.Length == _chosenCalls.Count)
-            return;
-        newCall:
         var rnd1 = _responses[Rnd.Range(0, _responses.Length)];
         var rnd2 = _calls[Rnd.Range(0, _calls.Length)];
         if (_chosenCalls.Contains(rnd2))
-            goto newCall;
-        _chosenResponses.Add(rnd1);
-        _chosenCalls.Add(rnd2);
+        {
+            int ix = Array.IndexOf(_chosenCalls.ToArray(), rnd2);
+            _chosenCalls[ix] = rnd2;
+            _chosenResponses[ix] = rnd1;
+        }
+        else
+        {
+            _chosenResponses.Add(rnd1);
+            _chosenCalls.Add(rnd2);
+        }
         TopText.text = "YOU MUST [" + rnd1 + "]";
         BottomText.text = "THE [" + rnd2 + "]";
         Debug.LogFormat("[The Temple Run #{0}] Added new response/call: YOU MUST [{1}] THE [{2}].", _moduleId, rnd1, rnd2);

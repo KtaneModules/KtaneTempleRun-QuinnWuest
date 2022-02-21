@@ -22,4 +22,4 @@ MonoBehaviour:
     Developed by Quinn Wuest'
   version: 1.0
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: 54bfedd1cc5baea49aae4c56b0d8bb15, type: 3}
+  previewImage: {fileID: 2800000, guid: 1b3b4796e1f79694eb4fb1e8f57c4225, type: 3}
