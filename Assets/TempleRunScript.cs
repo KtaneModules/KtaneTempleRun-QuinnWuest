@@ -35,6 +35,7 @@ public class TempleRunScript : MonoBehaviour
     private bool _isStrike;
     private bool _timerExpired;
     private bool _letTimerExpire;
+    private int _preActivations = 0;
 
     private void Start()
     {
@@ -55,12 +56,14 @@ public class TempleRunScript : MonoBehaviour
 
     private void Activate()
     {
-        if (!_canActivate)
+        if (_preActivations < 7)
         {
             Debug.LogFormat("[The Temple Run #{0}] Activation bypassed to give time for reads.", _moduleId);
+            _preActivations++;
             Deactivate();
             return;
         }
+        _canActivate = true;
         if (_initialCycle != null)
             StopCoroutine(_initialCycle);
         _currentInput = "";
@@ -141,7 +144,6 @@ public class TempleRunScript : MonoBehaviour
 
     private IEnumerator InitialCycle()
     {
-        int activIx = 0;
         int index = 0;
         while (true)
         {
@@ -149,12 +151,6 @@ public class TempleRunScript : MonoBehaviour
             BottomText.text = "THE [" + _chosenCalls[index] + "]";
             yield return new WaitForSeconds(2f);
             index = (index + 1) % 4;
-            if (!_canActivate)
-            {
-                activIx++;
-                if (activIx > 24)
-                    _canActivate = true;
-            }
         }
     }
 
