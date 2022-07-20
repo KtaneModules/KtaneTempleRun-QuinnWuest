@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using Rnd = UnityEngine.Random;
+using KModkit;
 
 public class TempleRunScript : MonoBehaviour
 {
@@ -56,6 +57,7 @@ public class TempleRunScript : MonoBehaviour
 
     private void Activate()
     {
+        Needy.SetResetDelayTime(35f, 65f);
         if (_preActivations < 7)
         {
             Debug.LogFormat("[The Temple Run #{0}] Activation bypassed to give time for reads.", _moduleId);
