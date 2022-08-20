@@ -19,7 +19,10 @@ MonoBehaviour:
 
     Manual by Grunkle Squeaky
 
-    Developed by Quinn Wuest'
+    Developed by Quinn Wuest
+
+
+    The manual can be found [url=https://ktane.timwi.de/HTML/The%20Temple%20Run.html]here.[/url]'
   version: 1.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 1b3b4796e1f79694eb4fb1e8f57c4225, type: 3}

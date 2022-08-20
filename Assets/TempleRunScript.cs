@@ -275,4 +275,58 @@ public class TempleRunScript : MonoBehaviour
         }
         SubmitAnswer();
     }
+
+    private void TwitchHandleForcedSolve()
+    {
+        StartCoroutine(AutoSolve());
+    }
+
+    private IEnumerator AutoSolve()
+    {
+        while (true)
+        {
+            if (!_canType)
+            {
+                yield return null;
+                continue;
+            }
+            while (_currentInput.Length > _expectedInput.Length)
+            {
+                _currentInput = _currentInput.Remove(_currentInput.Length - 1);
+                TopText.text = "YOU MUST [" + _currentInput + "]";
+                yield return new WaitForSeconds(0.05f);
+            }
+            int startIx = 0;
+            for (int i = 0; i < _currentInput.Length; i++)
+            {
+                if (_currentInput[i] == _expectedInput[i])
+                    startIx++;
+                else
+                {
+                    while (_currentInput.Length > startIx)
+                    {
+                        _currentInput = _currentInput.Remove(_currentInput.Length - 1);
+                        TopText.text = "YOU MUST [" + _currentInput + "]";
+                        yield return new WaitForSeconds(0.05f);
+                    }
+                }
+            }
+            if (_expectedInput != "")
+            {
+                for (int i = startIx; i < _expectedInput.Length; i++)
+                {
+                    _currentInput += _expectedInput[i];
+                    TopText.text = "YOU MUST [" + _currentInput + "]";
+                    yield return new WaitForSeconds(0.05f);
+                }
+                SubmitAnswer();
+                continue;
+            }
+            else
+            {
+                while (_canType)
+                    yield return null;
+            }
+        }
+    }
 }
