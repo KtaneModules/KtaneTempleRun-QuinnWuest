@@ -36,10 +36,14 @@ public class TempleRunScript : MonoBehaviour
     private bool _isStrike;
     private bool _timerExpired;
     private bool _letTimerExpire;
-    private int _preActivations = 0;
+
+    private bool _tpCorrectAnswer;
+    private float _tpScore;
+    private const float _tpBonus = 0.04f;
 
     private void Start()
     {
+        Needy.SetResetDelayTime(119f, 120f);
         _moduleId = _moduleIdCounter++;
         _chosenResponses = _responses.Shuffle().Take(4).ToList();
         _chosenCalls = _calls.Shuffle().Take(4).ToList();
@@ -58,13 +62,6 @@ public class TempleRunScript : MonoBehaviour
     private void Activate()
     {
         Needy.SetResetDelayTime(35f, 65f);
-        if (_preActivations < 7)
-        {
-            Debug.LogFormat("[The Temple Run #{0}] Activation bypassed to give time for reads.", _moduleId);
-            _preActivations++;
-            Deactivate();
-            return;
-        }
         _canActivate = true;
         if (_initialCycle != null)
             StopCoroutine(_initialCycle);
@@ -199,6 +196,7 @@ public class TempleRunScript : MonoBehaviour
 
     private void SubmitAnswer()
     {
+        _tpCorrectAnswer = false;
         _currentInput = _currentInput.ToUpperInvariant();
         _currentInput = Regex.Replace(_currentInput, @"\s+", " ");
         if (_currentInput != "" && _currentInput.Substring(_currentInput.Length - 1, 1) == " ")
@@ -215,6 +213,8 @@ public class TempleRunScript : MonoBehaviour
             }
             else
             {
+                _tpCorrectAnswer = true;
+                _tpScore += _tpBonus;
                 Audio.PlaySoundAtTransform("Correct", transform);
                 Debug.LogFormat("[The Temple Run #{0}] Correctly let the timer run out. Needy disarmed.", _moduleId);
                 Deactivate();
@@ -222,6 +222,7 @@ public class TempleRunScript : MonoBehaviour
         }
         else if (_currentInput == _expectedInput)
         {
+            _tpCorrectAnswer = true;
             Audio.PlaySoundAtTransform("Correct", transform);
             Debug.LogFormat("[The Temple Run #{0}] Correctly submitted [{1}]. Needy disarmed.", _moduleId, _currentInput);
             Needy.HandlePass();
@@ -274,6 +275,13 @@ public class TempleRunScript : MonoBehaviour
             yield return new WaitForSeconds(0.05f);
         }
         SubmitAnswer();
+        yield return null;
+        if (_tpCorrectAnswer)
+        {
+            _tpScore += _tpBonus;
+            if (_tpScore >= 1)
+                yield return "awardpoints " + (int)_tpScore;
+        }
     }
 
     private void TwitchHandleForcedSolve()
